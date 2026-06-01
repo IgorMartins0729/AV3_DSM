@@ -45,4 +45,39 @@ router.post('/login', async (req, res) => {
   }
 })
 
+router.post('/register', async (req, res) => {
+  try {
+    const { nome, telefone, endereco, usuario, senha } = req.body as {
+      nome: string; telefone: string; endereco: string; usuario: string; senha: string
+    }
+    if (!nome || !usuario || !senha) {
+      res.status(400).json({ mensagem: 'Campos obrigatórios: nome, usuario, senha' })
+      return
+    }
+    if (senha.length < 6) {
+      res.status(400).json({ mensagem: 'A senha deve ter pelo menos 6 caracteres' })
+      return
+    }
+    const hash = await bcrypt.hash(senha, 10)
+    const funcionario = await prisma.funcionario.create({
+      data: {
+        nome,
+        usuario,
+        senha: hash,
+        telefone: telefone ?? '',
+        endereco: endereco ?? '',
+        nivelPermissao: 'OPERADOR',
+      },
+      select: { id: true, nome: true, usuario: true, nivelPermissao: true },
+    })
+    res.status(201).json(funcionario)
+  } catch (err: any) {
+    if (err.code === 'P2002') {
+      res.status(409).json({ mensagem: 'Este usuário já está cadastrado' })
+    } else {
+      res.status(500).json({ mensagem: 'Erro ao criar conta' })
+    }
+  }
+})
+
 export default router

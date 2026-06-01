@@ -53,10 +53,10 @@ function Login() {
               id="login-usuario"
               type="text"
               className={styles.input}
-              defaultValue="admin"
               ref={usuarioRef}
               required
               autoComplete="username"
+              placeholder="Ex: joao.silva"
             />
           </div>
         </div>
@@ -69,10 +69,10 @@ function Login() {
               id="login-senha"
               type="password"
               className={styles.input}
-              defaultValue="123456"
               ref={senhaRef}
               required
               autoComplete="current-password"
+              placeholder="••••••••"
             />
           </div>
         </div>

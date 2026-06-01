@@ -18,7 +18,6 @@ import {
 import styles from './styles.module.css'
 import logo from '../../assets/gemini-generated.png'
 import { useSessao } from '../../contexts/SessaoContext'
-import { NIVEIS_DISPONIVEIS } from '../../utils/permissoes'
 
 const QUERY_MOBILE = '(max-width: 599px)'
 
@@ -46,7 +45,7 @@ function Sidebar() {
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(QUERY_MOBILE).matches : false
   )
-  const { papelAtual, setPapelAtual, logout } = useSessao()
+  const { papelAtual, usuarioLogado, logout } = useSessao()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -199,7 +198,7 @@ function Sidebar() {
 
         <div
           className={styles.sessao}
-          title={!expandido ? `Atuando como ${papelAtual}` : undefined}
+          title={!expandido ? `${usuarioLogado?.nome ?? ''} — ${papelAtual}` : undefined}
         >
           {!expandido ? (
             <>
@@ -218,31 +217,22 @@ function Sidebar() {
             </>
           ) : (
             <>
-              <label className={styles.sessaoLabel} htmlFor="seletor-papel">
-                <UserCog size={14} /> Atuando como
-              </label>
-              <div className={styles.sessaoLinha}>
-                <select
-                  id="seletor-papel"
-                  className={styles.sessaoSelect}
-                  value={papelAtual}
-                  onChange={(e) => setPapelAtual(e.target.value)}
-                >
-                  {NIVEIS_DISPONIVEIS.map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  className={styles.botaoSair}
-                  onClick={aoSair}
-                  title="Sair"
-                  aria-label="Sair"
-                >
-                  <LogOut size={16} />
-                  <span>Sair</span>
-                </button>
+              <div className={styles.sessaoInfo}>
+                <span className={styles.sessaoNome}>{usuarioLogado?.nome ?? '—'}</span>
+                <span className={styles.sessaoPapel}>
+                  <UserCog size={12} /> {papelAtual}
+                </span>
               </div>
+              <button
+                type="button"
+                className={styles.botaoSair}
+                onClick={aoSair}
+                title="Sair"
+                aria-label="Sair"
+              >
+                <LogOut size={16} />
+                <span>Sair</span>
+              </button>
             </>
           )}
         </div>

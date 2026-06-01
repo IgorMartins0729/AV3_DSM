@@ -7,7 +7,7 @@ async function main() {
 
   const admin = await prisma.funcionario.upsert({
     where: { usuario: 'admin' },
-    update: {},
+    update: { senha: senhaHash },
     create: {
       nome: 'Administrador',
       usuario: 'admin',
@@ -20,7 +20,7 @@ async function main() {
 
   await prisma.funcionario.upsert({
     where: { usuario: 'engenheiro' },
-    update: {},
+    update: { senha: senhaHash },
     create: {
       nome: 'Engenheiro Padrão',
       usuario: 'engenheiro',
@@ -33,7 +33,7 @@ async function main() {
 
   await prisma.funcionario.upsert({
     where: { usuario: 'operador' },
-    update: {},
+    update: { senha: senhaHash },
     create: {
       nome: 'Operador Padrão',
       usuario: 'operador',

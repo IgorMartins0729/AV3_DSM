@@ -139,33 +139,30 @@
   gap: 6px;
 }
 
-.sessaoLabel {
+.sessaoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sessaoNome {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sessaoPapel {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
+  gap: 4px;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #777;
-  font-weight: 500;
-}
-
-.sessaoSelect {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #d0d0d0;
-  font-size: 0.85rem;
-  background-color: #fff;
-  color: #333;
-  cursor: pointer;
-  font-family: inherit;
-  transition: border-color 0.15s ease;
-}
-
-.sessaoSelect:focus {
-  outline: none;
-  border-color: #70C0E4;
-  box-shadow: 0 0 0 3px rgba(112, 192, 228, 0.18);
 }
 
 .sessaoColapsada {
@@ -174,17 +171,6 @@
   align-items: center;
   color: #555;
   padding: 8px 0;
-}
-
-.sessaoLinha {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sessaoLinha .sessaoSelect {
-  flex: 1;
-  min-width: 0;
 }
 
 .botaoSair {

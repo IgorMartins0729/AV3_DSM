@@ -8,7 +8,6 @@ import styles from '../../../styles/forms.module.css'
 const NIVEIS_PERMISSAO = ['ADMINISTRADOR', 'ENGENHEIRO', 'OPERADOR']
 
 const valoresIniciais = {
-  id: '',
   nome: '',
   telefone: '',
   endereco: '',
@@ -22,6 +21,7 @@ function FuncionarioCadastrar() {
   const { cadastrar } = useFuncionarios()
   const [valores, setValores] = useState(valoresIniciais)
   const [erros, setErros] = useState({})
+  const [erroGeral, setErroGeral] = useState(null)
 
   function atualizarCampo(evento) {
     const { name, value } = evento.target
@@ -34,10 +34,6 @@ function FuncionarioCadastrar() {
   function validar() {
     const novosErros = {}
 
-    const id = Number(valores.id)
-    if (!valores.id || Number.isNaN(id) || id <= 0) {
-      novosErros.id = 'ID deve ser um número maior que zero.'
-    }
     if (!valores.nome.trim()) novosErros.nome = 'Informe o nome.'
     if (!valores.telefone.trim()) novosErros.telefone = 'Informe o telefone.'
     if (!valores.endereco.trim()) novosErros.endereco = 'Informe o endereço.'
@@ -48,24 +44,32 @@ function FuncionarioCadastrar() {
     return novosErros
   }
 
-  function aoSubmeter(evento) {
+  async function aoSubmeter(evento) {
     evento.preventDefault()
     const novosErros = validar()
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros)
       return
     }
-
-    cadastrar({
-      id: Number(valores.id),
-      nome: valores.nome.trim(),
-      telefone: valores.telefone.trim(),
-      endereco: valores.endereco.trim(),
-      usuario: valores.usuario.trim(),
-      senha: valores.senha,
-      nivelPermissao: valores.nivelPermissao,
-    })
-    navigate('/funcionarios')
+    setErroGeral(null)
+    try {
+      await cadastrar({
+        nome: valores.nome.trim(),
+        telefone: valores.telefone.trim(),
+        endereco: valores.endereco.trim(),
+        usuario: valores.usuario.trim(),
+        senha: valores.senha,
+        nivelPermissao: valores.nivelPermissao,
+      })
+      navigate('/funcionarios')
+    } catch (err) {
+      const msg = err.message ?? 'Erro ao cadastrar funcionário'
+      if (msg.toLowerCase().includes('usuário')) {
+        setErros((prev) => ({ ...prev, usuario: msg }))
+      } else {
+        setErroGeral(msg)
+      }
+    }
   }
 
   return (
@@ -77,36 +81,23 @@ function FuncionarioCadastrar() {
         <ArrowLeft size={16} /> Voltar para listagem
       </Link>
 
-      <form className={styles.form} onSubmit={aoSubmeter} noValidate>
-        <div className={styles.linha}>
-          <div className={styles.campo}>
-            <label htmlFor="id" className={styles.label}>ID</label>
-            <input
-              id="id"
-              name="id"
-              type="number"
-              min="1"
-              className={styles.input}
-              value={valores.id}
-              onChange={atualizarCampo}
-              placeholder="Ex: 1001"
-            />
-            {erros.id && <span className={styles.erro}>{erros.id}</span>}
-          </div>
+      {erroGeral && (
+        <p style={{ color: '#c0392b', fontSize: '0.875rem', marginBottom: '0.75rem' }}>{erroGeral}</p>
+      )}
 
-          <div className={styles.campo}>
-            <label htmlFor="nome" className={styles.label}>Nome</label>
-            <input
-              id="nome"
-              name="nome"
-              type="text"
-              className={styles.input}
-              value={valores.nome}
-              onChange={atualizarCampo}
-              placeholder="Nome completo"
-            />
-            {erros.nome && <span className={styles.erro}>{erros.nome}</span>}
-          </div>
+      <form className={styles.form} onSubmit={aoSubmeter} noValidate>
+        <div className={styles.campo}>
+          <label htmlFor="nome" className={styles.label}>Nome</label>
+          <input
+            id="nome"
+            name="nome"
+            type="text"
+            className={styles.input}
+            value={valores.nome}
+            onChange={atualizarCampo}
+            placeholder="Nome completo"
+          />
+          {erros.nome && <span className={styles.erro}>{erros.nome}</span>}
         </div>
 
         <div className={styles.linha}>
