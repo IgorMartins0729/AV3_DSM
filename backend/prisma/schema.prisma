@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Funcionario {
+  id             Int            @id @default(autoincrement())
+  nome           String
+  usuario        String         @unique
+  senha          String
+  telefone       String
+  endereco       String
+  nivelPermissao NivelPermissao
+  etapas         Etapa[]        @relation("EtapaFuncionarios")
+
+  @@map("funcionarios")
+}
+
+model Aeronave {
+  codigo     String       @id
+  modelo     String
+  tipo       TipoAeronave
+  capacidade Int
+  alcance    Int
+  pecas      Peca[]
+  etapas     Etapa[]
+  testes     Teste[]
+  relatorio  Relatorio?
+
+  @@map("aeronaves")
+}
+
+model Peca {
+  id             Int        @id @default(autoincrement())
+  nome           String
+  tipo           TipoPeca
+  fornecedor     String
+  status         StatusPeca @default(EM_PRODUCAO)
+  aeronaveCodigo String
+  aeronave       Aeronave   @relation(fields: [aeronaveCodigo], references: [codigo], onDelete: Cascade)
+
+  @@map("pecas")
+}
+
+model Etapa {
+  id             Int           @id @default(autoincrement())
+  nome           String
+  prazo          DateTime      @db.Date
+  status         StatusEtapa   @default(PENDENTE)
+  aeronaveCodigo String
+  aeronave       Aeronave      @relation(fields: [aeronaveCodigo], references: [codigo], onDelete: Cascade)
+  funcionarios   Funcionario[] @relation("EtapaFuncionarios")
+
+  @@unique([aeronaveCodigo, nome])
+  @@map("etapas")
+}
+
+model Teste {
+  id             Int            @id @default(autoincrement())
+  tipo           TipoTeste
+  resultado      ResultadoTeste
+  aeronaveCodigo String
+  aeronave       Aeronave       @relation(fields: [aeronaveCodigo], references: [codigo], onDelete: Cascade)
+
+  @@unique([aeronaveCodigo, tipo])
+  @@map("testes")
+}
+
+model Relatorio {
+  id             Int      @id @default(autoincrement())
+  nomeCliente    String
+  dataEntrega    DateTime @db.Date
+  geradoEm       DateTime @default(now())
+  aeronaveCodigo String   @unique
+  aeronave       Aeronave @relation(fields: [aeronaveCodigo], references: [codigo], onDelete: Cascade)
+
+  @@map("relatorios")
+}
+
+enum TipoAeronave {
+  COMERCIAL
+  MILITAR
+}
+
+enum TipoPeca {
+  NACIONAL
+  IMPORTADA
+}
+
+enum StatusPeca {
+  EM_PRODUCAO
+  EM_TRANSPORTE
+  PRONTA
+}
+
+enum StatusEtapa {
+  PENDENTE
+  ANDAMENTO
+  CONCLUIDA
+}
+
+enum NivelPermissao {
+  ADMINISTRADOR
+  ENGENHEIRO
+  OPERADOR
+}
+
+enum TipoTeste {
+  ELETRICO
+  HIDRAULICO
+  AERODINAMICO
+}
+
+enum ResultadoTeste {
+  APROVADO
+  REPROVADO
+}
