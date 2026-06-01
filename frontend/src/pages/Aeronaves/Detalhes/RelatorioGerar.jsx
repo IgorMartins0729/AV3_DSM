@@ -31,6 +31,11 @@ function AeronaveRelatorioGerar() {
     }
     if (!valores.dataEntrega) {
       novosErros.dataEntrega = 'Informe a data de entrega.'
+    } else {
+      const hoje = new Date().toISOString().split('T')[0]
+      if (valores.dataEntrega < hoje) {
+        novosErros.dataEntrega = 'A data de entrega não pode ser no passado.'
+      }
     }
     return novosErros
   }

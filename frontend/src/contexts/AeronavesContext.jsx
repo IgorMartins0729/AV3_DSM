@@ -5,9 +5,12 @@ const AeronavesContext = createContext(null)
 
 export function AeronavesProvider({ children }) {
   const [aeronaves, setAeronaves] = useState([])
+  const [erroCarregamento, setErroCarregamento] = useState(null)
 
   useEffect(() => {
-    api.get('/aeronaves').then(setAeronaves).catch(console.error)
+    api.get('/aeronaves')
+      .then(setAeronaves)
+      .catch(() => setErroCarregamento('Falha ao carregar aeronaves. Verifique sua conexão.'))
   }, [])
 
   function atualizar(codigo, fn) {
@@ -137,6 +140,7 @@ export function AeronavesProvider({ children }) {
 
   const valor = {
     aeronaves,
+    erroCarregamento,
     cadastrar,
     remover,
     obter,

@@ -5,12 +5,9 @@ import { useAeronaves } from '../../../contexts/AeronavesContext'
 import { useFuncionarios } from '../../../contexts/FuncionariosContext'
 import styles from '../../../styles/forms.module.css'
 
-const STATUS_ETAPA = ['PENDENTE', 'ANDAMENTO', 'CONCLUIDA']
-
 const valoresIniciais = {
   nome: '',
   prazo: '',
-  status: '',
   funcionariosIds: [],
 }
 
@@ -46,7 +43,6 @@ function AeronaveEtapaCadastrar() {
     const novosErros = {}
     if (!valores.nome.trim()) novosErros.nome = 'Informe o nome da etapa.'
     if (!valores.prazo) novosErros.prazo = 'Informe o prazo.'
-    if (!valores.status) novosErros.status = 'Selecione o status.'
     return novosErros
   }
 
@@ -61,7 +57,7 @@ function AeronaveEtapaCadastrar() {
     adicionarEtapa(aeronave.codigo, {
       nome: valores.nome.trim(),
       prazo: valores.prazo,
-      status: valores.status,
+      status: 'PENDENTE',
       funcionariosIds: valores.funcionariosIds,
     })
     navigate('../etapas')
@@ -88,36 +84,17 @@ function AeronaveEtapaCadastrar() {
           {erros.nome && <span className={styles.erro}>{erros.nome}</span>}
         </div>
 
-        <div className={styles.linha}>
-          <div className={styles.campo}>
-            <label htmlFor="prazo" className={styles.label}>Prazo</label>
-            <input
-              id="prazo"
-              name="prazo"
-              type="date"
-              className={styles.input}
-              value={valores.prazo}
-              onChange={atualizarCampo}
-            />
-            {erros.prazo && <span className={styles.erro}>{erros.prazo}</span>}
-          </div>
-
-          <div className={styles.campo}>
-            <label htmlFor="status" className={styles.label}>Status</label>
-            <select
-              id="status"
-              name="status"
-              className={styles.input}
-              value={valores.status}
-              onChange={atualizarCampo}
-            >
-              <option value="">Selecione...</option>
-              {STATUS_ETAPA.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-            {erros.status && <span className={styles.erro}>{erros.status}</span>}
-          </div>
+        <div className={styles.campo}>
+          <label htmlFor="prazo" className={styles.label}>Prazo</label>
+          <input
+            id="prazo"
+            name="prazo"
+            type="date"
+            className={styles.input}
+            value={valores.prazo}
+            onChange={atualizarCampo}
+          />
+          {erros.prazo && <span className={styles.erro}>{erros.prazo}</span>}
         </div>
 
         <div className={styles.campo}>

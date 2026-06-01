@@ -5,9 +5,12 @@ const FuncionariosContext = createContext(null)
 
 export function FuncionariosProvider({ children }) {
   const [funcionarios, setFuncionarios] = useState([])
+  const [erroCarregamento, setErroCarregamento] = useState(null)
 
   useEffect(() => {
-    api.get('/funcionarios').then(setFuncionarios).catch(console.error)
+    api.get('/funcionarios')
+      .then(setFuncionarios)
+      .catch(() => setErroCarregamento('Falha ao carregar funcionários. Verifique sua conexão.'))
   }, [])
 
   // Cria ou atualiza: se dados.id existir → PUT, senão → POST
@@ -32,7 +35,7 @@ export function FuncionariosProvider({ children }) {
     return funcionarios.find((f) => f.id === id)
   }
 
-  const valor = { funcionarios, cadastrar, remover, obter }
+  const valor = { funcionarios, erroCarregamento, cadastrar, remover, obter }
 
   return <FuncionariosContext.Provider value={valor}>{children}</FuncionariosContext.Provider>
 }

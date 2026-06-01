@@ -18,9 +18,8 @@ Antes de executar o projeto, certifique-se de ter instalado:
 
 ```
 AV3/
-├── backend/          Node.js + Express + TypeScript + Prisma
-├── frontend/         React + Vite
-│   └── AV2_DSM-main/ Código-fonte do frontend
+├── backend/    Node.js + Express + TypeScript + Prisma
+├── frontend/   React + Vite
 └── README.md
 ```
 
@@ -94,7 +93,7 @@ O servidor estará disponível em `http://localhost:3000`.
 Abra um segundo terminal:
 
 ```bash
-cd frontend/AV2_DSM-main
+cd frontend
 npm install
 npm run dev
 ```

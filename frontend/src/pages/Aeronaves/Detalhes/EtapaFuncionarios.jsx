@@ -9,7 +9,8 @@ import styles from './styles.module.css'
 
 function AeronaveEtapaFuncionarios() {
   const { aeronave } = useOutletContext()
-  const { nomeEtapa } = useParams()
+  const { nomeEtapa: nomeEtapaRaw } = useParams()
+  const nomeEtapa = decodeURIComponent(nomeEtapaRaw ?? '')
   const navigate = useNavigate()
   const { atualizarEtapa } = useAeronaves()
   const { funcionarios } = useFuncionarios()

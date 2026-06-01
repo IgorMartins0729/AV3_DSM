@@ -29,8 +29,13 @@ export function autenticar(req: Request, res: Response, next: NextFunction): voi
   }
 
   try {
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      res.status(500).json({ mensagem: 'Configuração de servidor inválida' })
+      return
+    }
     const token = authHeader.slice(7)
-    const payload = jwt.verify(token, process.env.JWT_SECRET as string) as TokenPayload
+    const payload = jwt.verify(token, secret) as TokenPayload
     req.usuario = payload
     next()
   } catch {

@@ -22,6 +22,7 @@ function FuncionarioCadastrar() {
   const [valores, setValores] = useState(valoresIniciais)
   const [erros, setErros] = useState({})
   const [erroGeral, setErroGeral] = useState(null)
+  const [carregando, setCarregando] = useState(false)
 
   function atualizarCampo(evento) {
     const { name, value } = evento.target
@@ -39,6 +40,7 @@ function FuncionarioCadastrar() {
     if (!valores.endereco.trim()) novosErros.endereco = 'Informe o endereço.'
     if (!valores.usuario.trim()) novosErros.usuario = 'Informe o usuário.'
     if (!valores.senha) novosErros.senha = 'Informe a senha.'
+    else if (valores.senha.length < 6) novosErros.senha = 'A senha deve ter pelo menos 6 caracteres.'
     if (!valores.nivelPermissao) novosErros.nivelPermissao = 'Selecione o nível de permissão.'
 
     return novosErros
@@ -51,6 +53,7 @@ function FuncionarioCadastrar() {
       setErros(novosErros)
       return
     }
+    setCarregando(true)
     setErroGeral(null)
     try {
       await cadastrar({
@@ -69,6 +72,8 @@ function FuncionarioCadastrar() {
       } else {
         setErroGeral(msg)
       }
+    } finally {
+      setCarregando(false)
     }
   }
 
@@ -187,8 +192,8 @@ function FuncionarioCadastrar() {
           >
             Cancelar
           </button>
-          <button type="submit" className={styles.botaoPrimario}>
-            <Save size={16} /> Salvar
+          <button type="submit" className={styles.botaoPrimario} disabled={carregando}>
+            <Save size={16} /> {carregando ? 'Salvando...' : 'Salvar'}
           </button>
         </div>
       </form>

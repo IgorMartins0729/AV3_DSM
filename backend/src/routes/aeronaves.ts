@@ -66,8 +66,18 @@ router.post('/', exigirPermissao('ENGENHEIRO'), async (req, res) => {
       res.status(400).json({ mensagem: 'Campos obrigatórios: codigo, modelo, tipo' })
       return
     }
+    const cap = Number(capacidade)
+    const alc = Number(alcance)
+    if (isNaN(cap) || cap <= 0) {
+      res.status(400).json({ mensagem: 'Capacidade deve ser um número maior que zero' })
+      return
+    }
+    if (isNaN(alc) || alc <= 0) {
+      res.status(400).json({ mensagem: 'Alcance deve ser um número maior que zero' })
+      return
+    }
     const aeronave = await prisma.aeronave.create({
-      data: { codigo, modelo, tipo, capacidade: Number(capacidade), alcance: Number(alcance) },
+      data: { codigo, modelo, tipo, capacidade: cap, alcance: alc },
       include: incluirTudo,
     })
     res.status(201).json(formatarAeronave(aeronave))
@@ -142,9 +152,20 @@ router.post('/:codigo/pecas', exigirPermissao('ENGENHEIRO'), async (req, res) =>
   }
 })
 
-router.put('/:codigo/pecas/:id', async (req, res) => {
+const STATUS_PECA_VALIDOS = ['EM_PRODUCAO', 'EM_TRANSPORTE', 'PRONTA']
+const TIPO_PECA_VALIDOS = ['NACIONAL', 'IMPORTADA']
+
+router.put('/:codigo/pecas/:id', exigirPermissao('OPERADOR'), async (req, res) => {
   try {
     const { nome, tipo, fornecedor, status } = req.body
+    if (status !== undefined && !STATUS_PECA_VALIDOS.includes(status)) {
+      res.status(400).json({ mensagem: `Status inválido. Use: ${STATUS_PECA_VALIDOS.join(', ')}` })
+      return
+    }
+    if (tipo !== undefined && !TIPO_PECA_VALIDOS.includes(tipo)) {
+      res.status(400).json({ mensagem: `Tipo inválido. Use: ${TIPO_PECA_VALIDOS.join(', ')}` })
+      return
+    }
     const dados: Record<string, unknown> = { nome, tipo, fornecedor, status }
     Object.keys(dados).forEach((k) => dados[k] === undefined && delete dados[k])
 
@@ -212,13 +233,29 @@ router.post('/:codigo/etapas', exigirPermissao('ENGENHEIRO'), async (req, res) =
   }
 })
 
+const STATUS_ETAPA_VALIDOS = ['PENDENTE', 'ANDAMENTO', 'CONCLUIDA']
+
 // Atualiza status e/ou funcionários de uma etapa (identificada pelo nome)
-router.put('/:codigo/etapas/:nome', async (req, res) => {
+router.put('/:codigo/etapas/:nome', exigirPermissao('OPERADOR'), async (req, res) => {
   try {
     const nomeEtapa = decodeURIComponent(req.params.nome)
     const { status, funcionariosIds } = req.body as {
       status?: string
       funcionariosIds?: number[]
+    }
+    if (status !== undefined && !STATUS_ETAPA_VALIDOS.includes(status)) {
+      res.status(400).json({ mensagem: `Status inválido. Use: ${STATUS_ETAPA_VALIDOS.join(', ')}` })
+      return
+    }
+    if (status === 'CONCLUIDA') {
+      const anterior = await prisma.etapa.findFirst({
+        where: { aeronaveCodigo: req.params.codigo, id: { lt: etapaAtual.id } },
+        orderBy: { id: 'desc' },
+      })
+      if (anterior && anterior.status !== 'CONCLUIDA') {
+        res.status(400).json({ mensagem: `A etapa "${anterior.nome}" deve ser concluída antes desta` })
+        return
+      }
     }
 
     const etapaAtual = await prisma.etapa.findUnique({

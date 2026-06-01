@@ -25,9 +25,14 @@ router.post('/login', async (req, res) => {
       return
     }
 
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      res.status(500).json({ mensagem: 'Configuração de servidor inválida' })
+      return
+    }
     const token = jwt.sign(
       { id: funcionario.id, usuario: funcionario.usuario, nivelPermissao: funcionario.nivelPermissao },
-      process.env.JWT_SECRET as string,
+      secret,
       { expiresIn: '8h' }
     )
 

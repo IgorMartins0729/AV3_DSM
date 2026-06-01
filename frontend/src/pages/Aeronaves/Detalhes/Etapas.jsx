@@ -21,18 +21,30 @@ function AeronaveEtapas() {
   const tituloFinalizar = `Requer ${nivelMinimo(AcaoSistema.FINALIZAR_ETAPA)} ou superior`
   const tituloAssociar = `Requer ${nivelMinimo(AcaoSistema.ASSOCIAR_FUNCIONARIO_ETAPA)} ou superior`
 
-  function aoRemover(nome) {
+  async function aoRemover(nome) {
     if (window.confirm(`Remover a etapa ${nome}?`)) {
-      removerEtapa(aeronave.codigo, nome)
+      try {
+        await removerEtapa(aeronave.codigo, nome)
+      } catch (err) {
+        alert(err.message ?? 'Erro ao remover etapa')
+      }
     }
   }
 
-  function aoIniciar(nome) {
-    atualizarEtapa(aeronave.codigo, nome, { status: 'ANDAMENTO' })
+  async function aoIniciar(nome) {
+    try {
+      await atualizarEtapa(aeronave.codigo, nome, { status: 'ANDAMENTO' })
+    } catch (err) {
+      alert(err.message ?? 'Erro ao iniciar etapa')
+    }
   }
 
-  function aoFinalizar(nome) {
-    atualizarEtapa(aeronave.codigo, nome, { status: 'CONCLUIDA' })
+  async function aoFinalizar(nome) {
+    try {
+      await atualizarEtapa(aeronave.codigo, nome, { status: 'CONCLUIDA' })
+    } catch (err) {
+      alert(err.message ?? 'Erro ao finalizar etapa')
+    }
   }
 
   return (
@@ -59,8 +71,14 @@ function AeronaveEtapas() {
               </tr>
             </thead>
             <tbody>
-              {aeronave.etapas.map((etapa) => {
+              {aeronave.etapas.map((etapa, index) => {
                 const totalFuncionarios = etapa.funcionariosIds?.length ?? 0
+                const etapaAnterior = index > 0 ? aeronave.etapas[index - 1] : null
+                const anteriorConcluida = !etapaAnterior || etapaAnterior.status === 'CONCLUIDA'
+                const podeFinalizarEsta = podeFinalizar && anteriorConcluida
+                const tituloFinalizarEsta = !anteriorConcluida
+                  ? `A etapa "${etapaAnterior.nome}" deve ser concluída primeiro`
+                  : !podeFinalizar ? tituloFinalizar : undefined
                 return (
                   <tr key={etapa.nome}>
                     <td>{etapa.nome}</td>
@@ -84,8 +102,8 @@ function AeronaveEtapas() {
                             type="button"
                             className={tabela.botaoAcao}
                             onClick={() => aoFinalizar(etapa.nome)}
-                            disabled={!podeFinalizar}
-                            title={!podeFinalizar ? tituloFinalizar : undefined}
+                            disabled={!podeFinalizarEsta}
+                            title={tituloFinalizarEsta}
                           >
                             <CheckCircle2 size={12} /> Finalizar
                           </button>

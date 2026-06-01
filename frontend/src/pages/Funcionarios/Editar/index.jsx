@@ -26,6 +26,8 @@ function FuncionarioEditar() {
       : null
   )
   const [erros, setErros] = useState({})
+  const [erroGeral, setErroGeral] = useState(null)
+  const [carregando, setCarregando] = useState(false)
 
   if (!funcionario || !valores) {
     return (
@@ -56,24 +58,36 @@ function FuncionarioEditar() {
     return novosErros
   }
 
-  function aoSubmeter(evento) {
+  async function aoSubmeter(evento) {
     evento.preventDefault()
     const novosErros = validar()
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros)
       return
     }
-
-    cadastrar({
-      id: funcionario.id,
-      nome: valores.nome.trim(),
-      telefone: valores.telefone.trim(),
-      endereco: valores.endereco.trim(),
-      usuario: valores.usuario.trim(),
-      senha: valores.senha,
-      nivelPermissao: valores.nivelPermissao,
-    })
-    navigate('/funcionarios')
+    setCarregando(true)
+    setErroGeral(null)
+    try {
+      await cadastrar({
+        id: funcionario.id,
+        nome: valores.nome.trim(),
+        telefone: valores.telefone.trim(),
+        endereco: valores.endereco.trim(),
+        usuario: valores.usuario.trim(),
+        senha: valores.senha,
+        nivelPermissao: valores.nivelPermissao,
+      })
+      navigate('/funcionarios')
+    } catch (err) {
+      const msg = err.message ?? 'Erro ao atualizar funcionário'
+      if (msg.toLowerCase().includes('usuário')) {
+        setErros((prev) => ({ ...prev, usuario: msg }))
+      } else {
+        setErroGeral(msg)
+      }
+    } finally {
+      setCarregando(false)
+    }
   }
 
   return (
@@ -84,6 +98,10 @@ function FuncionarioEditar() {
       <Link to="/funcionarios" className={styles.linkVoltar}>
         <ArrowLeft size={16} /> Voltar para listagem
       </Link>
+
+      {erroGeral && (
+        <p style={{ color: '#c0392b', fontSize: '0.875rem', marginBottom: '0.75rem' }}>{erroGeral}</p>
+      )}
 
       <form className={styles.form} onSubmit={aoSubmeter} noValidate>
         <div className={styles.linha}>
@@ -198,8 +216,8 @@ function FuncionarioEditar() {
           >
             Cancelar
           </button>
-          <button type="submit" className={styles.botaoPrimario}>
-            <Save size={16} /> Salvar alterações
+          <button type="submit" className={styles.botaoPrimario} disabled={carregando}>
+            <Save size={16} /> {carregando ? 'Salvando...' : 'Salvar alterações'}
           </button>
         </div>
       </form>
