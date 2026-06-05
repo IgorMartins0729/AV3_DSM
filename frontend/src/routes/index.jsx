@@ -21,6 +21,7 @@ import FuncionarioCadastrar from '../pages/Funcionarios/Cadastrar'
 import FuncionarioEditar from '../pages/Funcionarios/Editar'
 import Login from '../pages/Login'
 import Register from '../pages/Register'
+import Metricas from '../pages/Metricas'
 
 function AppRoutes() {
   return (
@@ -128,6 +129,8 @@ function AppRoutes() {
             />
           }
         />
+
+        <Route path="/metricas" element={<Metricas />} />
 
         <Route path="/funcionarios" element={<Funcionarios />} />
         <Route

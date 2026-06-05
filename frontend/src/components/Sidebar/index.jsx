@@ -14,6 +14,7 @@ import {
   FlaskConical,
   FileText,
   LogOut,
+  Activity,
 } from 'lucide-react'
 import styles from './styles.module.css'
 import logo from '../../assets/gemini-generated.png'
@@ -193,6 +194,17 @@ function Sidebar() {
           >
             <Users size={20} />
             {expandido && <span>Funcionários</span>}
+          </NavLink>
+
+          <NavLink
+            to="/metricas"
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.active : ''}`
+            }
+            title={!expandido ? 'Métricas' : undefined}
+          >
+            <Activity size={20} />
+            {expandido && <span>Métricas</span>}
           </NavLink>
         </nav>
 

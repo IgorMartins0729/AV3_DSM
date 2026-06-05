@@ -3,6 +3,12 @@ import { autenticar } from '../middleware/auth'
 import { obterMedicoes, limparMedicoes } from '../middleware/metrics'
 
 const router = Router()
+
+// Público — usado para medir latência sem precisar de token
+router.get('/ping', (_req, res) => {
+  res.json({ pong: true })
+})
+
 router.use(autenticar)
 
 router.get('/', (_req, res) => {
